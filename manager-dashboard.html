@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manager Dashboard</title>
+  <script>
+    async function fetchEmployees() {
+      try {
+        const response = await fetch('/employees');
+        if (!response.ok) throw new Error('Failed to fetch employee data.');
+
+        const employees = await response.json();
+        const table = document.getElementById('employeeTable');
+        const tbody = table.querySelector('tbody');
+
+        tbody.innerHTML = ''; // Clear existing table rows
+
+        employees.forEach(employee => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${employee.EmpId}</td>
+            <td>${employee.Name}</td>
+            <td>${employee.JobRole}</td>
+            <td>${employee.Salary}</td>
+            <td>${employee.ContactInfo}</td>
+            <td>${employee.HireDate}</td>
+            <td>
+              <button onclick="showDeleteEmployeeForm('${employee.EmpId}', '${employee.ManagerId}')">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        document.getElementById('employeeSection').style.display = 'block';
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    }
+
+    async function addEmployee(event) {
+      event.preventDefault();
+
+      const formData = new FormData(document.getElementById('addEmployeeForm'));
+      const employeeData = Object.fromEntries(formData);  // Convert FormData to JSON object
+
+      try {
+        const response = await fetch('/add-employee', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(employeeData)  // Send the data as JSON
+        });
+
+        if (!response.ok) throw new Error('Failed to add employee.');
+        alert('Employee added successfully!');
+        document.getElementById('addEmployeeForm').reset();
+        fetchEmployees(); // Refresh employee list
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    }
+
+    async function deleteEmployee(event) {
+      event.preventDefault();
+
+      const empId = document.getElementById('deleteEmpId').value;
+      const managerId = document.getElementById('deleteManagerId').value;
+
+      // Check if EmpId and ManagerId are provided
+      if (!empId || !managerId) {
+        return alert('Please provide both Employee ID and Manager ID.');
+      }
+
+      try {
+        const response = await fetch('/delete-employee', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ EmpId: empId, ManagerId: managerId })  // Send EmpId and ManagerId as JSON
+        });
+
+        if (!response.ok) throw new Error('Failed to delete employee.');
+        alert('Employee deleted successfully!');
+        fetchEmployees(); // Refresh employee list after deletion
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    }
+
+    // Show the delete employee form and pre-fill EmpId and ManagerId
+    function showDeleteEmployeeForm(empId, managerId) {
+      document.getElementById('deleteEmpId').value = empId;
+      document.getElementById('deleteManagerId').value = managerId;
+      document.getElementById('deleteEmployeeSection').style.display = 'block';
+    }
+  </script>
+</head>
+<body>
+  <h1>Welcome, Manager!</h1>
+  <button onclick="fetchEmployees()">View All Employees</button>
+
+  <div id="employeeSection" style="display: none;">
+    <h2>Employee Details</h2>
+    <table id="employeeTable" border="1">
+      <thead>
+        <tr>
+          <th>EmpId</th>
+          <th>Name</th>
+          <th>Job Role</th>
+          <th>Salary</th>
+          <th>Contact Info</th>
+          <th>Hire Date</th>
+          <th>Action</th> <!-- New column for Delete button -->
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Employee rows will be added dynamically -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Add Employee Form -->
+  <h2>Add New Employee</h2>
+  <form id="addEmployeeForm" onsubmit="addEmployee(event)">
+    <label for="EmpId">Employee ID:</label>
+    <input type="text" id="EmpId" name="EmpId" required><br><br>
+    <label for="Name">Name:</label>
+    <input type="text" id="Name" name="Name" required><br><br>
+    <label for="JobRole">Job Role:</label>
+    <input type="text" id="JobRole" name="JobRole" required><br><br>
+    <label for="Salary">Salary:</label>
+    <input type="number" id="Salary" name="Salary" required><br><br>
+    <label for="ContactInfo">Contact Info:</label>
+    <input type="text" id="ContactInfo" name="ContactInfo" required><br><br>
+    <label for="HireDate">Hire Date:</label>
+    <input type="date" id="HireDate" name="HireDate" required><br><br>
+    <label for="ManagerId">Manager ID:</label>
+    <input type="text" id="ManagerId" name="ManagerId" required><br><br>
+    <label for="Password">Password:</label>
+    <input type="password" id="Password" name="Password" required><br><br>
+    <button type="submit">Add Employee</button>
+  </form>
+
+  <!-- Delete Employee Form -->
+  <div id="deleteEmployeeSection" style="display: none;">
+    <h2>Delete Employee</h2>
+    <form id="deleteEmployeeForm" onsubmit="deleteEmployee(event)">
+      <label for="deleteEmpId">Employee ID:</label>
+      <input type="text" id="deleteEmpId" name="EmpId" required><br><br>
+      <label for="deleteManagerId">Manager ID:</label>
+      <input type="text" id="deleteManagerId" name="ManagerId" required><br><br>
+      <button type="submit">Delete Employee</button>
+    </form>
+  </div>
+</body>
+</html>

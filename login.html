@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unified Login</title>
+</head>
+<body>
+  <h1>Login</h1>
+  <form action="/login" method="POST">
+    <label for="UserId">User ID:</label>
+    <input type="text" id="UserId" name="UserId" required>
+    <br><br>
+    <label for="Password">Password:</label>
+    <input type="password" id="Password" name="Password" required>
+    <br><br>
+    <label for="Role">Role:</label>
+    <select id="Role" name="Role" required>
+      <option value="Employee">Employee</option>
+      <option value="Manager">Manager</option>
+    </select>
+    <br><br>
+    <button type="submit">Login</button>
+  </form>
+</body>
+</html>

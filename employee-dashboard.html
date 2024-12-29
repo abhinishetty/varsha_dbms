@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Dashboard</title>
+  <script>
+    async function fetchEmployeeSalary() {
+      const empId = prompt("Please enter your Employee ID:");
+
+      if (!empId) {
+        alert("Employee ID is required");
+        return;
+      }
+
+      try {
+        const response = await fetch(`/get-salary-slip?EmpId=${empId}`);
+        if (!response.ok) throw new Error('Failed to fetch salary data.');
+
+        const salary = await response.json();
+        const salarySection = document.getElementById('salarySection');
+        salarySection.innerHTML = `
+          <h2>Your Salary Slip</h2>
+          <p>EmpId: ${salary.EmpId}</p>
+          <p>Pay Amount: ${salary.PayAmount}</p>
+          <p>Bonus: ${salary.Bonus}</p>
+          <p>Travel Pay: ${salary.TravelPay}</p>
+        `;
+        salarySection.style.display = 'block';
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    }
+  </script>
+</head>
+<body>
+  <h1>Welcome, Employee!</h1>
+  <button onclick="fetchEmployeeSalary()">View Your Salary Slip</button>
+
+  <div id="salarySection" style="display: none;">
+    <!-- Employee salary details will be shown here -->
+  </div>
+</body>
+</html>
